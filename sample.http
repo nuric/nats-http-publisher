@@ -1,0 +1,30 @@
+@baseUrl = "http://localhost:8080"
+@username = gandalf
+@password = you_shall_not_pass
+
+###
+
+GET http://localhost:8080/healthz HTTP/1.1
+
+###
+
+# Publish the message without Basic Auth
+POST http://localhost:8080/publish HTTP/1.1
+Content-Type: application/json
+
+{
+    "subject": "gondor",
+    "message": "Helms Deep might fall"
+}
+
+###
+
+# Publish the message with Basic Auth
+POST http://localhost:8080/publish HTTP/1.1
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+    "subject": "gondor",
+    "message": "Helms Deep has fallen"
+}
