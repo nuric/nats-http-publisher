@@ -14,17 +14,21 @@ import (
 
 // ---------------------------
 
+// Health check handler useful for container health checks
 func handlerHealthz(w http.ResponseWriter, r *http.Request) {
 	Encode(w, http.StatusOK, map[string]any{"status": "ok"})
 }
 
 // ---------------------------
 
+// Single NATS connection, the name corresponds to the authenticated owner such
+// as user:pass or anonymous so future requests can reuse the connection.
 type natsConn struct {
 	conn *nats.Conn
 	name string
 }
 
+// Application wide handlers that utilise the NATS connections
 type AppHandlers struct {
 	Config Config
 	conns  map[string]natsConn
@@ -104,7 +108,7 @@ func (app *AppHandlers) getConnection(r *http.Request) (nc natsConn, err error) 
 	return
 }
 
-func (app *AppHandlers) remove(name string) {
+func (app *AppHandlers) removeConnection(name string) {
 	app.mu.Lock()
 	delete(app.conns, name)
 	app.mu.Unlock()
@@ -169,7 +173,7 @@ func (app *AppHandlers) handlerPublish(w http.ResponseWriter, r *http.Request) {
 	// Publish message
 	if err := nc.conn.Publish(req.Subject, []byte(req.Message)); err != nil {
 		Encode(w, http.StatusBadGateway, map[string]string{"error": err.Error()})
-		app.remove(nc.name)
+		app.removeConnection(nc.name)
 		return
 	}
 }

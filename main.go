@@ -14,6 +14,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Application wide configuration
 type Config struct {
 	// Debug enables debug and pretty logging
 	Debug bool `env:"DEBUG" envDefault:"false"`

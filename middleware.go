@@ -9,6 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Zerolog based middleware for logging HTTP requests
 func middlewareLogger(next http.Handler) http.Handler {
 	handler := hlog.AccessHandler(func(r *http.Request, status, size int, duration time.Duration) {
 		hlog.FromRequest(r).Info().

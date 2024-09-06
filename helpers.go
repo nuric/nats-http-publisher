@@ -18,6 +18,8 @@ type Validator interface {
 	Valid(ctx context.Context) (problems map[string]string)
 }
 
+// Encode writes the object to the response writer. It is usually used as the
+// last step in a handler.
 func Encode[T any](w http.ResponseWriter, status int, v T) {
 	w.Header().Set("Content-Type", "application/json")
 	// Write to buffer first to ensure the object is json encodable
@@ -33,14 +35,8 @@ func Encode[T any](w http.ResponseWriter, status int, v T) {
 	w.Write(buf.Bytes())
 }
 
-func Decode[T any](r *http.Request) (T, error) {
-	var v T
-	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
-		return v, fmt.Errorf("decode json: %w", err)
-	}
-	return v, nil
-}
-
+// DecodeValid decodes the request body into the object and then validates it.
+// Look at problems to see if there are any issues.
 func DecodeValid[T Validator](r *http.Request) (T, map[string]string) {
 	var v T
 	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
